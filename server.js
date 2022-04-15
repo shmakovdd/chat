@@ -44,10 +44,16 @@ const wss = new Server({ server });
 wss.on('connection', (ws) => {
     console.log('Client connected');
     ws.on('message', message => {
+        message = JSON.parse(message);
+        console.log(JSON.stringify(message));  
         wss.clients.forEach( client => {
-            client.send(message)
+            client.send(JSON.stringify(message))
         })
     })
+})
+
+wss.on('close', ws => {
+    wss.clients.delete(ws)
 })
 
 
