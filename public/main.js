@@ -12,20 +12,12 @@ let audio = new Audio('./snapchat.mp3')
 let form = document.querySelector('.form');
 let input = document.querySelector('.input');
 let chat_wrapper = document.querySelector('.chat-list');
-
 let modal = document.querySelector('.hidden-modal')
 
-window.addEventListener('unload', ()=> {
-  socket.close()
-})
-
-
-console.log(nickname);
 form.addEventListener('submit', event => {
   event.preventDefault();
   let message = {
-    type: 'event',
-    nickname: nickname,
+    type: 'message',
     message: input.value,
     id: ID,
   };
@@ -34,58 +26,56 @@ form.addEventListener('submit', event => {
 });
 
 socket.onopen = function(e) {
-  console.log('установлено');
   let message = {
     type: 'connection',
-    nick: nickname,
-    message: `Пользователь ${nickname} вошел в чат`
   };
 
   socket.send(JSON.stringify(message));
 };
 
-socket.onclose = function(e) {
-  alert('Соединение прервано')
-  let message = {
-    type: 'connection',
-    nick: nickname,
-    message: `Пользователь ${nickname} вышел из чата`
-  };
-  socket.send(JSON.stringify(message));
-
-};
 
 socket.onmessage = function(message) {
   message = JSON.parse(message.data)
+
   putMessage(message);
-  if (message.id !== ID) {audio.play() }
+  if (message?.id !== ID) {audio.play() }
   
 };
 
 function putMessage(msg) {
   
   switch (msg.type) {
-    case 'connection': 
-      modal.textContent = msg.message
+    case 'connection_is_lost': 
+      modal.textContent = `Пользователь ${nickname} вышел из чата`
       modal.classList.add('active')
-        setTimeout(()=> {modal.classList.remove('active')}, 3000)
+        setTimeout(()=> {modal.classList.remove('active')}, 7000)
       break
-    case 'event':
-      let messageItem = document.createElement('li');
-      let userName = document.createElement('div');
-      let messagetext =  document.createElement('div');
-      messagetext.classList.add('chat-message');
-      userName.classList.add('chat-user-name');
-      userName.textContent = `${msg.nickname}: `
-      messageItem.appendChild(userName)
-      messageItem.appendChild(messagetext)
-      messageItem.classList.add('chat-item')
-      messagetext.textContent = msg.message
-      chat_wrapper.appendChild(messageItem)
+    case 'connection': 
+      modal.textContent = `Пользователь ${nickname} вошел в чат`
+      modal.classList.add('active')
+        setTimeout(()=> {modal.classList.remove('active')}, 7000)
+      break
+    case 'message':
+      createMessageItem(msg)
       break
   }
   // msg.data.text().then((msg)=> {
 
   // }) 
 
+}
+
+function createMessageItem(msg) {
+  let messageItem = document.createElement('li');
+      let userName = document.createElement('div');
+      let messagetext =  document.createElement('div');
+      messagetext.classList.add('chat-message');
+      userName.classList.add('chat-user-name');
+      userName.textContent = `${nickname}: `
+      messageItem.appendChild(userName)
+      messageItem.appendChild(messagetext)
+      messageItem.classList.add('chat-item')
+      messagetext.textContent = msg.message
+      chat_wrapper.appendChild(messageItem)
+      chat_wrapper.scrollTop = chat_wrapper.scrollHeight;
 }
