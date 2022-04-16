@@ -24,15 +24,23 @@ function pingPong(clients) {
 
 }
 
+
+
+let online = 0;
+
 const wss = new Server({ server });
 wss.on('connection', (ws) => {
-
-    
+    online += 1;
     pingPong(wss.clients)
 
     ws.on('message', message => {
         
         message = JSON.parse(message);
+
+        if (message.type === 'connection') {
+            message.online = online;
+        }
+
         if(message.type !== 'pong') {
             wss.clients.forEach( client => {
                 client.send(JSON.stringify(message))
@@ -41,10 +49,15 @@ wss.on('connection', (ws) => {
 
     })
     ws.on('close', ws => {
+        online -= 1;
+
         let message = {
             type: 'connection_is_lost',
+            online: online,
         }
         wss.clients.delete(ws)
+
+
         wss.clients.forEach( client => {
             client.send(JSON.stringify(message))
         })

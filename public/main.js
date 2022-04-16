@@ -1,5 +1,3 @@
-
-
 let HOST = location.origin.replace(/^http/, 'ws')
 
 let nickname = prompt('Write your nickname') || 'anonymous'
@@ -12,7 +10,8 @@ let audio = new Audio('./snapchat.mp3')
 let form = document.querySelector('.form');
 let input = document.querySelector('.input');
 let chat_wrapper = document.querySelector('.chat-list');
-let modal = document.querySelector('.hidden-modal')
+let modal = document.querySelector('.hidden-modal');
+let onlineElement = document.querySelector('.online');
 
 form.addEventListener('submit', event => {
   event.preventDefault();
@@ -54,11 +53,13 @@ function putMessage(msg) {
       socket.send(JSON.stringify({type: 'pong'}));
       break 
     case 'connection_is_lost': 
+      onlineElement.textContent = `Сейчас онлайн: ${msg.online}`
       modal.textContent = `Пользователь ${msg.nickname} вышел из чата`
       modal.classList.add('active')
         setTimeout(()=> {modal.classList.remove('active')}, 7000)
       break
     case 'connection': 
+      onlineElement.textContent = `Сейчас онлайн: ${msg.online}`
       modal.textContent = `Пользователь ${msg.nickname} вошел в чат`
       modal.classList.add('active')
         setTimeout(()=> {modal.classList.remove('active')}, 7000)

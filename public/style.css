@@ -41,6 +41,7 @@ ul {
     min-height: 100vh;
     padding: 20px 20px;
     overflow: hidden;
+    position: relative;
 }
 
 .hidden-modal {
@@ -68,8 +69,16 @@ input[type='text'] {
 @media screen and (max-width: 460px) {
     input[type='text'] {
         font-size: 15px;
+        width: 70%;
     } 
 }
+
+
+.online {
+    position: relative;
+    float: right;
+}
+
 .input-wrapper::before {
     content: '';
     display: inline-block;
