@@ -18,6 +18,7 @@ form.addEventListener('submit', event => {
   event.preventDefault();
   let message = {
     type: 'message',
+    nickname: nickname,
     message: input.value,
     id: ID,
   };
@@ -28,6 +29,7 @@ form.addEventListener('submit', event => {
 socket.onopen = function(e) {
   let message = {
     type: 'connection',
+    nickname: nickname,
   };
 
   socket.send(JSON.stringify(message));
@@ -35,7 +37,6 @@ socket.onopen = function(e) {
 
 socket.onclose = function(e) {
   alert('Соединение разорвано')
-
 };
 
 socket.onmessage = function(message) {
@@ -53,12 +54,12 @@ function putMessage(msg) {
       socket.send(JSON.stringify({type: 'pong'}));
       break 
     case 'connection_is_lost': 
-      modal.textContent = `Пользователь ${nickname} вышел из чата`
+      modal.textContent = `Пользователь ${msg.nickname} вышел из чата`
       modal.classList.add('active')
         setTimeout(()=> {modal.classList.remove('active')}, 7000)
       break
     case 'connection': 
-      modal.textContent = `Пользователь ${nickname} вошел в чат`
+      modal.textContent = `Пользователь ${msg.nickname} вошел в чат`
       modal.classList.add('active')
         setTimeout(()=> {modal.classList.remove('active')}, 7000)
       break
@@ -66,10 +67,6 @@ function putMessage(msg) {
       createMessageItem(msg)
       break
   }
-  // msg.data.text().then((msg)=> {
-
-  // }) 
-
 }
 
 function createMessageItem(msg) {
@@ -78,7 +75,7 @@ function createMessageItem(msg) {
       let messagetext =  document.createElement('div');
       messagetext.classList.add('chat-message');
       userName.classList.add('chat-user-name');
-      userName.textContent = `${nickname}: `
+      userName.textContent = `${msg.nickname}: `
       messageItem.appendChild(userName)
       messageItem.appendChild(messagetext)
       messageItem.classList.add('chat-item')
