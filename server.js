@@ -11,23 +11,34 @@ const server = app
   .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 
-// function pingPong() {
-//     let message = {
-//         ping: 
-//     }
-//     wss.clients.forEach( client => {
-//         client.send(JSON.stringify(message))
-//     })
-// }
+function pingPong(clients) {
+    let message = {
+        type: 'ping'
+    }
+
+    setInterval(() => {
+        clients.forEach( client => {
+            client.send(JSON.stringify(message))
+        })
+    }, 5000*10)
+
+}
 
 const wss = new Server({ server });
 wss.on('connection', (ws) => {
 
+    
+    pingPong(wss.clients)
+
     ws.on('message', message => {
+        
         message = JSON.parse(message);
-        wss.clients.forEach( client => {
-            client.send(JSON.stringify(message))
-        })
+        if(message.type !== 'pong') {
+            wss.clients.forEach( client => {
+                client.send(JSON.stringify(message))
+            })
+        }
+
     })
     ws.on('close', ws => {
         let message = {

@@ -33,18 +33,25 @@ socket.onopen = function(e) {
   socket.send(JSON.stringify(message));
 };
 
+socket.onclose = function(e) {
+  alert('Соединение разорвано')
+
+};
 
 socket.onmessage = function(message) {
   message = JSON.parse(message.data)
 
   putMessage(message);
-  if (message?.id !== ID) {audio.play() }
+  if (message?.id !== ID && message.type === 'message') {audio.play() }
   
 };
 
 function putMessage(msg) {
   
   switch (msg.type) {
+    case'ping': 
+      socket.send(JSON.stringify({type: 'pong'}));
+      break 
     case 'connection_is_lost': 
       modal.textContent = `Пользователь ${nickname} вышел из чата`
       modal.classList.add('active')
