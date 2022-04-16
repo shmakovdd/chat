@@ -3,7 +3,11 @@
 let HOST = location.origin.replace(/^http/, 'ws')
 
 let nickname = prompt('Write your nickname') || 'anonymous'
+let ID = Date.now()
 let socket = new WebSocket(HOST);
+
+let audio = new Audio('./snapchat.mp3')
+
 
 let form = document.querySelector('.form');
 let input = document.querySelector('.input');
@@ -11,7 +15,9 @@ let chat_wrapper = document.querySelector('.chat-list');
 
 let modal = document.querySelector('.hidden-modal')
 
-
+window.addEventListener('unload', ()=> {
+  socket.close()
+})
 
 
 console.log(nickname);
@@ -20,7 +26,8 @@ form.addEventListener('submit', event => {
   let message = {
     type: 'event',
     nickname: nickname,
-    message: input.value
+    message: input.value,
+    id: ID,
   };
   socket.send(JSON.stringify(message))
   input.value = ''
@@ -38,6 +45,7 @@ socket.onopen = function(e) {
 };
 
 socket.onclose = function(e) {
+  alert('Соединение прервано')
   let message = {
     type: 'connection',
     nick: nickname,
@@ -48,11 +56,14 @@ socket.onclose = function(e) {
 };
 
 socket.onmessage = function(message) {
+  message = JSON.parse(message.data)
   putMessage(message);
+  if (message.id !== ID) {audio.play() }
+  
 };
 
 function putMessage(msg) {
-  msg = JSON.parse(msg.data)
+  
   switch (msg.type) {
     case 'connection': 
       modal.textContent = msg.message
