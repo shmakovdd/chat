@@ -63,6 +63,9 @@ function putMessage(msg) {
       modal.textContent = `Пользователь ${msg.nickname} вошел в чат`
       modal.classList.add('active')
         setTimeout(()=> {modal.classList.remove('active')}, 7000)
+        msg.messageHistory.forEach(message => {
+          createMessageItem(message)
+        })
       break
     case 'message':
       createMessageItem(msg)
