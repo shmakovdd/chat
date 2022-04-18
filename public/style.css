@@ -25,6 +25,7 @@ ul {
 .chat-list {
     height: 90vh;
     overflow:auto;
+    width: 100%;
 }
 
 .chat-message {
@@ -71,6 +72,10 @@ input[type='text'] {
         font-size: 15px;
         width: 70%;
     } 
+
+    .chat-item {
+        font-size: 15px;
+    }
 }
 
 
