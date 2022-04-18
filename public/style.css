@@ -24,8 +24,23 @@ ul {
 
 .chat-list {
     height: 90vh;
-    overflow:auto;
+    overflow-x:hidden;
     width: 100%;
+}
+
+.chat-list::-webkit-scrollbar-thumb {
+    background: #1da41f;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.chat-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-list::-webkit-scrollbar {
+    width: 12px;
+    cursor: pointer;
 }
 
 .chat-message {
@@ -39,7 +54,7 @@ ul {
 .wrapper {
     background-color: black;
     width: 100%;
-    min-height: 100vh;
+    height: 100vh;
     padding: 20px 20px;
     overflow: hidden;
     position: relative;
@@ -48,7 +63,9 @@ ul {
 .hidden-modal {
     position: fixed;
     top: 10%;
-    left: 50%;
+    right: 0;
+    left: 0;
+    text-align: center;
     font-size: 25px;
     opacity: 0;
     transition: .3s;
