@@ -26,6 +26,15 @@ function pingPong(clients) {
 
 }
 
+async function postMessageHistory(messagesCollection, client) {
+    const allMessages = await messagesCollection.find({}).toArray()
+    let message = {
+        type: 'history',
+        messageHistory: allMessages
+    };
+    client.send(JSON.stringify(message))
+}
+
 
 const startApp = async () => {
     let online = 0;
@@ -40,18 +49,15 @@ const startApp = async () => {
         
 
     const wss = new Server({ server });
-    wss.on('connection', (ws) => {
+    wss.on('connection', async (ws) => {
         online += 1;
         pingPong(wss.clients)
-
-        ws.on('message', async message => {
+        ws.on('message', message => {
             
             message = JSON.parse(message);
-
+            
             if (message.type === 'connection') {
-                const allMessages = await messageCollection.find({}).toArray()
                 message.online = online;
-                message.messageHistory = allMessages;
             }
 
             if (message.type === 'message') {
@@ -66,8 +72,8 @@ const startApp = async () => {
                     client.send(JSON.stringify(message))
                 })
             }
-
         })
+        await postMessageHistory(messageCollection, ws)
         ws.on('close', ws => {
             online -= 1;
 
