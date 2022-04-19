@@ -9,18 +9,27 @@
 </head>
 <body>
     <div class="wrapper">
-        <div class="online">
+        <aside class="sidebar">
+            <div class="online">
+            </div>
+            <ul class="nicknames__list">
+
+            </ul>
+        </aside> 
+        <div class="right">
+            <ul class="chat-list">
+                <div id="intersection"></div>
+            </ul>
+            <form class="form">
+                <div class="input-wrapper">
+                    <input type="text" class="input" placeholder="Введите своё сообщение..." autoFocus>
+                </div>
+            </form>
         </div>
+        
         <div class="hidden-modal"></div>
        
-        <ul class="chat-list">
-            <div id="intersection"></div>
-        </ul>
-        <form class="form">
-            <div class="input-wrapper">
-                <input type="text" class="input" placeholder="Введите своё сообщение..." autoFocus>
-            </div>
-        </form>
+       
     </div>
     <script src="./main.js"></script>
 </body>

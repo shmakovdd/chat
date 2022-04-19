@@ -7,10 +7,10 @@ let socket = new WebSocket(HOST);
 let audio = new Audio('./snapchat.mp3')
 
 
-let form = document.querySelector('.form');
-let input = document.querySelector('.input');
-let chat_wrapper = document.querySelector('.chat-list');
-let modal = document.querySelector('.hidden-modal');
+let form =          document.querySelector('.form');
+let input =         document.querySelector('.input');
+let chat_wrapper =  document.querySelector('.chat-list');
+let modal =         document.querySelector('.hidden-modal');
 let onlineElement = document.querySelector('.online');
 
 form.addEventListener('submit', event => {
@@ -80,12 +80,16 @@ function putMessage(msg) {
       modal.textContent = `Пользователь ${msg.nickname} вышел из чата`
       modal.classList.add('active')
         setTimeout(()=> {modal.classList.remove('active')}, 7000)
+        console.log((msg.nicknames));
+        setNicknames(msg.nicknames)
       break
     case 'connection': 
       onlineElement.textContent = `Сейчас онлайн: ${msg.online}`
       modal.textContent = `Пользователь ${msg.nickname} вошел в чат`
       modal.classList.add('active')
         setTimeout(()=> {modal.classList.remove('active')}, 7000)
+        console.log((msg.nicknames));
+        setNicknames(msg.nicknames)
       break
     case 'message':
       chat_wrapper.appendChild(createLastMessageItem(msg)) 
@@ -95,6 +99,17 @@ function putMessage(msg) {
     case 'history':
       getHistory(msg)
   }
+}
+
+function setNicknames(nicknames) {
+  let nicknameList = document.querySelector('.nicknames__list');
+  nicknameList.innerHTML = ''
+  nicknames.forEach(nick => {
+    let item = document.createElement('li');
+    item.classList.add('nicknames__item');
+    item.textContent = `${nick}`
+    nicknameList.appendChild(item)
+  })
 }
 
 function getHistory(msg) {

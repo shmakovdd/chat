@@ -48,6 +48,7 @@ function postMessageHistory(messagesCollection, client) {
 
 const startApp = async () => {
     let online = 0;
+    let nicknamesArray = [];
     await client.connect();
     const db = client.db('my_chat');
     const messageCollection = db.collection('messages');
@@ -59,6 +60,8 @@ const startApp = async () => {
 
     const wss = new Server({ server });
     wss.on('connection', async (ws) => {
+        let nickname = ''
+
         let postChatHistory = postMessageHistory(messageCollection, ws)
         online += 1;
         pingPong(wss.clients)
@@ -68,6 +71,9 @@ const startApp = async () => {
             
             if (message.type === 'connection') {
                 message.online = online;
+                nickname = message.nickname
+                nicknamesArray.push(nickname)
+                message.nicknames = nicknamesArray
             }
 
             if (message.type === 'message') {
@@ -90,13 +96,14 @@ const startApp = async () => {
         await postChatHistory()
         ws.on('close', ws => {
             online -= 1;
-
+            nicknamesArray = nicknamesArray.filter(nick => nick !== nickname)
             let message = {
                 type: 'connection_is_lost',
                 online: online,
+                nickname: nickname,
+                nicknames: nicknamesArray
             }
             wss.clients.delete(ws)
-
 
             wss.clients.forEach( client => {
                 client.send(JSON.stringify(message))
