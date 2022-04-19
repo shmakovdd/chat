@@ -26,19 +26,28 @@ function pingPong(clients) {
 
 }
 
-async function postMessageHistory(messagesCollection, client) {
-    const allMessages = await messagesCollection.find({}).toArray()
-    let message = {
+function postMessageHistory(messagesCollection, client) {
+    let messageToLoad = 30
+    let spliceFrom = 0
+  
+    return async function() {
+        const messages = (await messagesCollection.find({})
+                                                            .sort({$natural: -1})
+                                                            .limit(messageToLoad)
+                                                            .toArray()).splice(spliceFrom, messageToLoad)     
+        messageToLoad += 30
+        spliceFrom += 30                                                                            
+        let message = {
         type: 'history',
-        messageHistory: allMessages
-    };
-    client.send(JSON.stringify(message))
+        messageHistory: messages
+        };
+        client.send(JSON.stringify(message))
+    }
 }
 
 
 const startApp = async () => {
     let online = 0;
-
     await client.connect();
     const db = client.db('my_chat');
     const messageCollection = db.collection('messages');
@@ -50,9 +59,10 @@ const startApp = async () => {
 
     const wss = new Server({ server });
     wss.on('connection', async (ws) => {
+        let postChatHistory = postMessageHistory(messageCollection, ws)
         online += 1;
         pingPong(wss.clients)
-        ws.on('message', message => {
+        ws.on('message', async message => {
             
             message = JSON.parse(message);
             
@@ -67,13 +77,17 @@ const startApp = async () => {
                 })
             }
 
-            if(message.type !== 'pong') {
+            if (message.type === 'history') {
+                await postChatHistory()
+            }
+
+            if(message.type !== 'pong' && message.type !== 'history') {
                 wss.clients.forEach( client => {
                     client.send(JSON.stringify(message))
                 })
             }
         })
-        await postMessageHistory(messageCollection, ws)
+        await postChatHistory()
         ws.on('close', ws => {
             online -= 1;
 

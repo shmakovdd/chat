@@ -52,6 +52,14 @@ ul {
     cursor: pointer;
 }
 
+#intersection {
+    height: 15px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+}
+
+
 .chat-message {
     margin-left: 15px;
 }

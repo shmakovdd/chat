@@ -25,6 +25,26 @@ form.addEventListener('submit', event => {
   input.value = ''
 });
 
+function checkIntersection() {
+  let options = {
+    root: chat_wrapper,
+    rootMargin: '0px',
+    threshold: 1.0
+  };
+  callback = function(entries, observer) {
+    if (entries[0].isIntersecting) {
+      let message = {
+        type: 'history'
+      }
+      socket.send(JSON.stringify(message))
+    }
+  };
+  let target = document.querySelector('#intersection');
+  let observer = new IntersectionObserver(callback, options);
+  observer.observe(target)
+}
+
+
 socket.onopen = function(e) {
   let message = {
     type: 'connection',
@@ -32,6 +52,7 @@ socket.onopen = function(e) {
   };
 
   socket.send(JSON.stringify(message));
+  chat_wrapper.scrollTop = chat_wrapper.scrollHeight;
 };
 
 socket.onclose = function(e) {
@@ -45,6 +66,8 @@ socket.onmessage = function(message) {
   if (message?.id !== ID && message.type === 'message') {audio.play() }
   
 };
+checkIntersection()
+
 
 function putMessage(msg) {
   
@@ -65,26 +88,37 @@ function putMessage(msg) {
         setTimeout(()=> {modal.classList.remove('active')}, 7000)
       break
     case 'message':
-      createMessageItem(msg)
+      chat_wrapper.appendChild(createLastMessageItem(msg)) 
+      chat_wrapper.scrollTop = chat_wrapper.scrollHeight;
+
       break
-    case 'history': 
-     msg.messageHistory.forEach(message => {
-      createMessageItem(message)
-    })    
+    case 'history':
+      getHistory(msg)
   }
 }
 
-function createMessageItem(msg) {
+function getHistory(msg) {
+  let anchor = chat_wrapper.firstChild
+  msg.messageHistory.forEach(msg => {
+  chat_wrapper.prepend(createLastMessageItem(msg))
+  })
+  if (chat_wrapper.children.length <= 31) {
+    chat_wrapper.scrollTop = chat_wrapper.scrollHeight;
+  } else {
+    anchor.scrollIntoView()
+  }
+  anchor.scrollIntoView({block: 'center'})
+  
+}
+
+
+function createLastMessageItem(msg) {
+  let template = 
+    `<div class="chat-user-name">${msg.nickname}: </div>
+    <div class="chat-message">${msg.message}</div>`
   let messageItem = document.createElement('li');
-      let userName = document.createElement('div');
-      let messagetext =  document.createElement('div');
-      messagetext.classList.add('chat-message');
-      userName.classList.add('chat-user-name');
-      userName.textContent = `${msg.nickname}: `
-      messageItem.appendChild(userName)
-      messageItem.appendChild(messagetext)
       messageItem.classList.add('chat-item')
-      messagetext.textContent = msg.message
-      chat_wrapper.appendChild(messageItem)
-      chat_wrapper.scrollTop = chat_wrapper.scrollHeight;
+      messageItem.innerHTML = template
+
+  return messageItem
 }
